@@ -96,9 +96,9 @@ class ResViT(nn.Module):
 
         self.res_backbone =   getattr(importlib.import_module('models.resvit'), res_type)()
 
-        num_patches = 64 if res_type.split('_')[1]) == 'basicblock' else 256
+        num_patches = 64 if res_type.split('_')[1] == 'basicblock' else 256
 
-        patch_dim = 16
+        patch_dim = 1024
         assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
 
         self.to_patch_embedding = nn.Sequential(
