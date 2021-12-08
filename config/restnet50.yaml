@@ -1,0 +1,4 @@
+model_name: restnet
+model_args:
+  rest_type: restnet50
+  num_classes: 10

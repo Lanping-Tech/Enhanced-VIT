@@ -1,0 +1,4 @@
+model_name: restnet
+model_args:
+  rest_type: restnet18
+  num_classes: 10
