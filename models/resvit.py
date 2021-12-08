@@ -3,7 +3,7 @@ from torch.functional import split
 import torch.nn as nn
 import torch.nn.functional as F
 
-from .vit import *
+from vit import *
 
 import importlib
 
@@ -68,10 +68,7 @@ class ResNet(nn.Module):
 
         self.conv1 = nn.Conv2d(3, 64, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn1 = nn.BatchNorm2d(64)
-        self.layer1 = self._make_layer(block, 64, num_blocks[0], stride=1)
-        self.layer2 = self._make_layer(block, 128, num_blocks[1], stride=2)
-        self.layer3 = self._make_layer(block, 256, num_blocks[2], stride=2)
-        self.layer4 = self._make_layer(block, 512, num_blocks[3], stride=2)
+        self.layer1 = self._make_layer(block, 64, num_blocks, stride=1)
 
     def _make_layer(self, block, planes, num_blocks, stride):
         strides = [stride] + [1]*(num_blocks-1)
@@ -84,26 +81,14 @@ class ResNet(nn.Module):
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.layer1(out)
-        out = self.layer2(out)
-        out = self.layer3(out)
-        out = self.layer4(out)
         return out
 
 
-def resnet18():
-    return ResNet(BasicBlock, [2,2,2,2])
+def res_basicblock():
+    return ResNet(BasicBlock, 2)
 
-def resnet34():
-    return ResNet(BasicBlock, [3,4,6,3])
-
-def resnet50():
-    return ResNet(Bottleneck, [3,4,6,3])
-
-def resnet101():
-    return ResNet(Bottleneck, [3,4,23,3])
-
-def resnet152():
-    return ResNet(Bottleneck, [3,8,36,3])
+def res_bottleneck():
+    return ResNet(Bottleneck, 3)
 
 class ResViT(nn.Module):
     def __init__(self, res_type, num_classes, dim, depth, heads, mlp_dim, pool = 'cls', dim_head = 64, dropout = 0., emb_dropout = 0., **kwargs):
@@ -111,7 +96,7 @@ class ResViT(nn.Module):
 
         self.res_backbone =   getattr(importlib.import_module('models.resvit'), res_type)()
 
-        num_patches = 512 if int(res_type.split('t')[1]) < 50 else 2048
+        num_patches = 64 if res_type.split('_')[1]) == 'basicblock' else 256
 
         patch_dim = 16
         assert pool in {'cls', 'mean'}, 'pool type must be either cls (cls token) or mean (mean pooling)'
@@ -152,3 +137,7 @@ class ResViT(nn.Module):
         x = self.to_latent(x)
         return self.mlp_head(x)
 
+model = res_bottleneck()
+x = torch.randn(1, 3, 32, 32)
+y = model(x)
+print(y.shape)
