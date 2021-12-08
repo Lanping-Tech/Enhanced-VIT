@@ -3,7 +3,7 @@ from torch.functional import split
 import torch.nn as nn
 import torch.nn.functional as F
 
-from vit import *
+from .vit import *
 
 import importlib
 
@@ -94,7 +94,7 @@ class ResViT(nn.Module):
     def __init__(self, res_type, num_classes, dim, depth, heads, mlp_dim, pool = 'cls', dim_head = 64, dropout = 0., emb_dropout = 0., **kwargs):
         super().__init__()
 
-        self.res_backbone =   getattr(importlib.import_module('models.resvit'), res_type)()
+        self.res_backbone = getattr(importlib.import_module('models.resvit'), res_type)()
 
         num_patches = 64 if res_type.split('_')[1] == 'basicblock' else 256
 
@@ -136,8 +136,3 @@ class ResViT(nn.Module):
 
         x = self.to_latent(x)
         return self.mlp_head(x)
-
-model = res_bottleneck()
-x = torch.randn(1, 3, 32, 32)
-y = model(x)
-print(y.shape)

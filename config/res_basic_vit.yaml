@@ -1,6 +1,6 @@
 model_name: resvit
 model_args:
-  res_type: resnet50
+  res_type: res_basicblock
   num_classes: 10
   dim: 512
   depth: 6
