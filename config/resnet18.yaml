@@ -1,4 +1,4 @@
 model_name: resnet18
 model_args:
   pretrained: false
-  num_classes: 100
+  num_classes: 10

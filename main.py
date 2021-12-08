@@ -33,14 +33,14 @@ def parse_arguments():
     )
 
     # dataset
-    parser.add_argument('--dataset_name', default='CIFAR100', type=str, help='dataset name')
+    parser.add_argument('--dataset_name', default='CIFAR10', type=str, help='dataset name')
     parser.add_argument('--train_batch_size', default=100, type=int, help='training batch size')
     parser.add_argument('--test_batch_size', default=100, type=int, help='testing batch size')
 
     # model
     parser.add_argument('--model_config', default='config/resnet50.yaml', type=str, help='model config')
 
-    parser.add_argument('--epochs', default=50, type=int, help='number of epochs tp train for')
+    parser.add_argument('--epochs', default=20, type=int, help='number of epochs tp train for')
     parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
     parser.add_argument('--device', default="cuda" if torch.cuda.is_available() else "cpu", type=str, help='divice')
 
@@ -66,7 +66,7 @@ def test(model, data_loader, device, test=False):
             loss = loss_func(y_pred, target)
             totalloss += loss.item()
             _, predicted = torch.max(y_pred.data, 1)
-            total += target.size(0)
+            total += 1
             correct += (predicted == target).sum().item()
 
     acc = correct / total
@@ -110,7 +110,8 @@ def train(model, train_loader, test_loader, args):
         print("Epoch {}: train_acc: {:.4f}, train_loss: {:.4f}, test_acc: {:.4f}, test_loss: {:.4f}".format(epoch, train_acc, train_loss, test_acc, test_loss))
         
         # model save
-        torch.save(model.state_dict(), args.output_path+'/epoch_{0}_train_acc_{1:>0.5}_test_acc_{2:>0.5}.ckpt'.format(epoch,train_acc,test_acc))
+        if epoch % 10 == 0:
+            torch.save(model.state_dict(), args.output_path+'/epoch_{0}_train_acc_{1:>0.5}_test_acc_{2:>0.5}.ckpt'.format(epoch,train_acc,test_acc))
 
     acc_plot = {}
     acc_plot['train_acc'] = train_accs
@@ -122,6 +123,7 @@ def train(model, train_loader, test_loader, args):
 
     performance_display(acc_plot, "ACC", args.output_path)
     performance_display(loss_plot, "LOSS", args.output_path)
+    torch.save(model.state_dict(), args.output_path+'/final.ckpt')
 
 if __name__ == '__main__':
     args = parse_arguments()
@@ -129,6 +131,13 @@ if __name__ == '__main__':
 
     if not os.path.exists(args.output_path):
         os.makedirs(args.output_path)
+
+    exp_name = args.dataset_name + '_' + args.model_config.split('/')[-1].split('.')[0]
+    
+    if not os.path.exists(os.path.join(args.output_path,exp_name)):
+        os.makedirs(os.path.join(args.output_path,exp_name))
+    
+    args.output_path = os.path.join(args.output_path,exp_name)
 
     # load train and test data
     train_loader, test_loader = getattr(datasets, 'load_'+args.dataset_name)(args.train_batch_size, args.test_batch_size)
