@@ -1,7 +1,7 @@
 model_name: vit
 model_args:
-  image_size: 256
-  patch_size: 32
+  image_size: 32
+  patch_size: 4
   num_classes: 10
   dim: 512
   depth: 6

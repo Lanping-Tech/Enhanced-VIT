@@ -32,7 +32,7 @@ class BasicBlock(nn.Module):
                 nn.BatchNorm2d(self.expansion*planes)
             )
 
-        self.fusion = Transformer(dim=self.expansion*planes, depth=1, heads=8, dim_head=self.expansion*planes, mlp_dim=self.expansion*planes*2, dropout = 0.1)
+        self.fusion = Transformer(dim=self.expansion*planes, depth=1, heads=2, dim_head=self.expansion*planes, mlp_dim=self.expansion*planes*2, dropout = 0.1)
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -64,7 +64,7 @@ class Bottleneck(nn.Module):
                 nn.Conv2d(in_planes, self.expansion*planes, kernel_size=1, stride=stride, bias=False),
                 nn.BatchNorm2d(self.expansion*planes)
             )
-        self.fusion = Transformer(dim=self.expansion*planes, depth=1, heads=8, dim_head=self.expansion*planes, mlp_dim=self.expansion*planes*2, dropout = 0.1)
+        self.fusion = Transformer(dim=self.expansion*planes, depth=1, heads=1, dim_head=self.expansion*planes, mlp_dim=self.expansion*planes*2, dropout = 0.1)
 
     def forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
@@ -195,12 +195,7 @@ class Transformer(nn.Module):
 class ResTNet(nn.Module):
     def __init__(self, rest_type, num_classes):
         super().__init__()
-        self.network = getattr(importlib.import_module('rest'), rest_type)(num_classes)
+        self.network = getattr(importlib.import_module('models.rest'), rest_type)(num_classes)
     def forward(self, x):
         out = self.network(x)
         return out
-
-model = ResTNet('restnet18', 10)
-x = torch.randn(1, 3, 32, 32)
-y = model(x)
-print(y.shape)

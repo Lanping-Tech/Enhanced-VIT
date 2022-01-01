@@ -38,7 +38,7 @@ def parse_arguments():
     parser.add_argument('--test_batch_size', default=100, type=int, help='testing batch size')
 
     # model
-    parser.add_argument('--model_config', default='config/res_bottle_vit.yaml', type=str, help='model config')
+    parser.add_argument('--model_config', default='config/restnet50.yaml', type=str, help='model config')
 
     parser.add_argument('--epochs', default=20, type=int, help='number of epochs tp train for')
     parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
